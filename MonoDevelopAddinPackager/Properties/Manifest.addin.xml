@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionModel>
+    <Extension path = "/MonoDevelop/Ide/Commands">
+        <Command id = "MonoDevelopAddinPackager.Commands.PackageProject"
+             _label = "Package Addin (.mpack)"
+             _description = "Generates an mpack file in the build configuration directory for this project." 
+             defaultHandler = "MonoDevelopAddinPackager.PackageProjectHandler"
+             />
+    </Extension>
+	<Extension path = "/MonoDevelop/Ide/MainMenu/Project">
+		<CommandItem id = "MonoDevelopAddinPackager.Commands.PackageProject"/>
+	</Extension>
+</ExtensionModel>

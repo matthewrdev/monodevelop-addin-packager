@@ -1,0 +1,7 @@
+﻿<AddinProject appVersion="5.0">
+    <Project platforms="Win32 Mac">
+        <AddinFile>MonoDevelopAddinPackager/bin/Release/MonoDevelopAddinPackager.dll</AddinFile>
+        <BuildFile>MonoDevelopAddinPackager.sln</BuildFile>
+        <BuildConfiguration>Release</BuildConfiguration>
+    </Project>
+</AddinProject>
