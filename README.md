@@ -1,2 +1,2 @@
 # monodevelop-addin-packager
-Utility to help package MonoDevelop addins manaully using mdtool
+Helper utility that allows monodevelop addins to be packaged into an mpack.
