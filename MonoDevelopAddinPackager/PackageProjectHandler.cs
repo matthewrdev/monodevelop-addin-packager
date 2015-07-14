@@ -135,6 +135,14 @@ namespace MonoDevelopAddinPackager
 			}
 
 			Solution activeSolution = null;
+			var items = workspace.Items.ToArray();
+			foreach (var i in items) {
+				if (i.GetType () == typeof(Solution)) {
+					activeSolution = i as Solution;
+					break;
+				}
+			}
+
 			if (activeSolution.StartupItem == null) {
 				return null;
 			}
@@ -144,7 +152,8 @@ namespace MonoDevelopAddinPackager
 
 		protected override void Update (CommandInfo info)
 		{
-			info.Enabled = CanExecuteInContext ();
+			CanExecuteInContext ();
+			info.Enabled = true;
 		}   
 	}
 }
