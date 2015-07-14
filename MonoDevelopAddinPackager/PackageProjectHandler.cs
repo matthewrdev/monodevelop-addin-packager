@@ -1,21 +1,17 @@
 ﻿using System;
-using Mono.TextEditor;
-using MonoDevelop.Ide;
-using MonoDevelop.Ide.Gui;
-using MonoDevelop.Components.Commands;
-using MonoDevelop.Projects;
-using System.Linq;
-using System.IO;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Reflection;
+using MonoDevelop.Components.Commands;
+using MonoDevelop.Ide;
+using MonoDevelop.Projects;
 
 namespace MonoDevelopAddinPackager
 {
 	public class PackageProjectHandler : CommandHandler
 	{
-
 		// <ProjectTypeGuids>{86F6BF2A-E449-4B3E-813B-9ACC37E5545F};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>	
-
 		public readonly string[] MONO_DEVELOP_ADDIN_PROJECT_GUIDS = new string[] {"FAE04EC0-301F-11D3-BF4B-00C04F79EFBC", "86F6BF2A-E449-4B3E-813B-9ACC37E5545F"};
 		public const string PROJECT_GUID_PROP_KEY = "ProjectTypeGuids";
 
@@ -26,50 +22,69 @@ namespace MonoDevelopAddinPackager
 		
 		protected override void Run ()
 		{
-			SolutionItem item = null;
-			CanExecuteInContext (out item);
+			SolutionItem item = GetTargettedSolutionItem ();
 
-			using (var monitor = IdeApp.Workbench.ProgressMonitors.GetBuildProgressMonitor ()) {
-				var buildResult = item.Build (monitor, IdeApp.Workspace.ActiveConfiguration);
-				if (buildResult.Failed == false) {
-					var project = item as Project;
-					var outputPath = project.GetOutputFileName (IdeApp.Workspace.ActiveConfiguration);
+			if (item == null) {
+				Console.WriteLine ("Can't process project because no solution items are active.");
+				return;
+			}
 
-					var name = DesktopService.PlatformName;
+			try {
+				using (var monitor = IdeApp.Workbench.ProgressMonitors.GetBuildProgressMonitor ()) {
+					var buildResult = item.Build (monitor, IdeApp.Workspace.ActiveConfiguration);
+					if (buildResult.Failed == false) {
+						var project = item as Project;
+						var outputPath = project.GetOutputFileName (IdeApp.Workspace.ActiveConfiguration);
 
+						string mdtoolPath = "";
+						if (DesktopService.PlatformName == "OSX") {
+							mdtoolPath = ResolveOsxMDToolPath ();
+						} else {
+							mdtoolPath = ResolveWindowsMDToolPath ();
+						}
 
+						ProcessStartInfo startInfo = new ProcessStartInfo();
+						startInfo.Arguments = String.Format (MDTOOL_PACK_COMMAND, outputPath, outputPath.ParentDirectory);
+						startInfo.UseShellExecute = false;
+						startInfo.RedirectStandardOutput = true;
+						startInfo.FileName = mdtoolPath;
 
-					string mdtoolPath = "";
-					if (DesktopService.PlatformName == "OSX") {
-						mdtoolPath = Path.Combine (MONODEVELOP_OSX_INSTALL_PATH, "mdtool");
-					} else {
-						mdtoolPath = Path.Combine (MONODEVELOP_OSX_INSTALL_PATH, "mdtool.exe");
-					}
+						Process process = new Process ();
+						process.StartInfo = startInfo;
+						process.OutputDataReceived += (sender, e) => IdeApp.Workbench.StatusBar.ShowMessage (e.Data);
+						process.Start ();
 
-					ProcessStartInfo startInfo = new ProcessStartInfo();
-					startInfo.Arguments = String.Format (MDTOOL_PACK_COMMAND, outputPath.ToString(), outputPath.ParentDirectory.ToString ());
-					startInfo.UseShellExecute = false;
-					startInfo.RedirectStandardOutput = true;
-					startInfo.FileName = mdtoolPath;
-
-					// TODO: Redirect out 
-
-					Process process = new Process ();
-					process.StartInfo = startInfo;
-					process.OutputDataReceived += (object sender, DataReceivedEventArgs e) => IdeApp.Workbench.StatusBar.ShowMessage (e.Data);
-					process.Start ();
-
-					if (process.WaitForExit (60000)) {
-						DesktopService.OpenFolder (outputPath.ParentDirectory.ToString ());
-					} else {
+						if (process.WaitForExit (60000)) {
+							DesktopService.OpenFolder (outputPath.ParentDirectory.ToString ());
+						} else {
+							Console.WriteLine(".mpack generation took too long");
+						}
 					}
 				}
 			}
+			catch (Exception ex) {
+				Console.WriteLine ("A critical error occurred while generating the mpack for the project." + ex.ToString());
+			}
 		}
 
-		protected bool CanExecuteInContext(out SolutionItem targettedItem)
+		string ResolveOsxMDToolPath ()
 		{
-			targettedItem = null;
+			var binPath = Path.GetDirectoryName(Assembly.GetEntryAssembly ().Location);
+			var di = new DirectoryInfo (binPath);
+
+			var contentsPath = Path.Combine (di.Parent.Parent.Parent.Parent.FullName, "MacOS");
+
+			return Path.Combine (contentsPath, "mdtool");
+		}
+
+		string ResolveWindowsMDToolPath ()
+		{
+			var binPath = Path.GetDirectoryName(Assembly.GetEntryAssembly ().Location);
+			return Path.Combine (binPath, "mdtool.exe");
+		}
+
+		protected bool CanExecuteInContext()
+		{
 			var workspace = IdeApp.Workspace;
 
 			if (String.IsNullOrEmpty (workspace.ActiveConfigurationId)) {
@@ -92,14 +107,15 @@ namespace MonoDevelopAddinPackager
 				return false;
 			}
 
-			var activeItemId = activeSolution.StartupItem.ItemId;
-
-			targettedItem = activeSolution.Items.FirstOrDefault(si => si.ItemId == activeSolution.StartupItem.ItemId);
-			if (targettedItem == null) {
+			if (activeSolution.StartupItem == null) {
 				return false;
 			}
 
-			if (targettedItem is Project == false) {
+			var activeItemId = activeSolution.StartupItem.ItemId;
+
+			var targettedItem = GetTargettedSolutionItem ();
+			if (targettedItem == null) {
+				return false;
 			}
 
 			if (targettedItem.ExtendedProperties.Contains ("ProjectTypeGuids") == false) {
@@ -110,14 +126,25 @@ namespace MonoDevelopAddinPackager
 			return guids.Contains (MONO_DEVELOP_ADDIN_PROJECT_GUIDS [0]) && guids.Contains (MONO_DEVELOP_ADDIN_PROJECT_GUIDS [1]);
 		}
 
+		protected SolutionItem GetTargettedSolutionItem()
+		{
+			var workspace = IdeApp.Workspace;
+
+			if (String.IsNullOrEmpty (workspace.ActiveConfigurationId)) {
+				return null;
+			}
+
+			Solution activeSolution = null;
+			if (activeSolution.StartupItem == null) {
+				return null;
+			}
+
+			return activeSolution.Items.FirstOrDefault(si => si.ItemId == activeSolution.StartupItem.ItemId);
+		}
+
 		protected override void Update (CommandInfo info)
 		{
-			var binPath = Path.GetDirectoryName(Assembly.GetEntryAssembly ().Location);
-
-			var files = Directory.GetFiles (binPath);
-
-			SolutionItem item = null;
-			info.Enabled = CanExecuteInContext (out item);
+			info.Enabled = CanExecuteInContext ();
 		}   
 	}
 }
