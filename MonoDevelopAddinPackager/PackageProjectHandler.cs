@@ -12,11 +12,8 @@ namespace MonoDevelopAddinPackager
 	public class PackageProjectHandler : CommandHandler
 	{
 		// <ProjectTypeGuids>{86F6BF2A-E449-4B3E-813B-9ACC37E5545F};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>	
-		public readonly string[] MONO_DEVELOP_ADDIN_PROJECT_GUIDS = new string[] {"FAE04EC0-301F-11D3-BF4B-00C04F79EFBC", "86F6BF2A-E449-4B3E-813B-9ACC37E5545F"};
+		public readonly string[] MONO_DEVELOP_ADDIN_PROJECT_GUIDS = new [] {"FAE04EC0-301F-11D3-BF4B-00C04F79EFBC", "86F6BF2A-E449-4B3E-813B-9ACC37E5545F"};
 		public const string PROJECT_GUID_PROP_KEY = "ProjectTypeGuids";
-
-		public const string MONODEVELOP_OSX_INSTALL_PATH = @"/Applications/Xamarin Studio.app/Contents/MacOS/";
-		public const string MONODEVELOP_WINDOWS_INSTALL_PATH = @"C:\Program Files (x86)\Xamarin Studio\bin\";
 
 		public const string MDTOOL_PACK_COMMAND = "setup pack {0} -d:{1}";
 		
@@ -72,6 +69,8 @@ namespace MonoDevelopAddinPackager
 			var binPath = Path.GetDirectoryName(Assembly.GetEntryAssembly ().Location);
 			var di = new DirectoryInfo (binPath);
 
+			// All exes are in: "[/InstallPath]/Resources/lib/monodevelop/bin/"
+			// We need to access mdtool in "/[InstallPath]/MacOS/" so step up 4 directories .
 			var contentsPath = Path.Combine (di.Parent.Parent.Parent.Parent.FullName, "MacOS");
 
 			return Path.Combine (contentsPath, "mdtool");
@@ -118,11 +117,11 @@ namespace MonoDevelopAddinPackager
 				return false;
 			}
 
-			if (targettedItem.ExtendedProperties.Contains ("ProjectTypeGuids") == false) {
+			if (targettedItem.ExtendedProperties.Contains (PROJECT_GUID_PROP_KEY) == false) {
 				return false;
 			}
 
-			var guids = (string)targettedItem.ExtendedProperties ["ProjectTypeGuids"];
+			var guids = (string)targettedItem.ExtendedProperties [PROJECT_GUID_PROP_KEY];
 			return guids.Contains (MONO_DEVELOP_ADDIN_PROJECT_GUIDS [0]) && guids.Contains (MONO_DEVELOP_ADDIN_PROJECT_GUIDS [1]);
 		}
 
@@ -152,10 +151,7 @@ namespace MonoDevelopAddinPackager
 
 		protected override void Update (CommandInfo info)
 		{
-			CanExecuteInContext ();
-			info.Enabled = true;
+			info.Enabled = CanExecuteInContext ();
 		}   
 	}
 }
-
-

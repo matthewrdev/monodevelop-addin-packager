@@ -1,3 +1,3 @@
 # monodevelop-addin-packager
 
-Helper utility that allows monodevelop addins to be packaged into an mpack.
+Adds a 'Package Addin' option to the Project menu that packs the current MonoDevelop Addin project into an .mpack.
