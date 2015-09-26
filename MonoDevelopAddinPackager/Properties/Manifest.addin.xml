@@ -10,4 +10,24 @@
 	<Extension path = "/MonoDevelop/Ide/MainMenu/Project">
 		<CommandItem id = "MonoDevelopAddinPackager.Commands.PackageProject"/>
 	</Extension>
+    <Extension path = "/MonoDevelop/Ide/Commands">
+        <Command id = "MonoDevelopAddinPackager.Commands.GenerateWebIndex"
+             _label = "Create Addin Web Index (.mrep)"
+             _description = "Creates the web server index (.mrep) for the current addin." 
+             defaultHandler = "MonoDevelopAddinPackager.CreateWebIndexHandler"
+             />
+    </Extension>
+	<Extension path = "/MonoDevelop/Ide/MainMenu/Project">
+		<CommandItem id = "MonoDevelopAddinPackager.Commands.GenerateWebIndex"/>
+	</Extension>
+    <Extension path = "/MonoDevelop/Ide/Commands">
+        <Command id = "MonoDevelopAddinPackager.Commands.CleanAddinPackaging"
+             _label = "Cleanup Addin Packages"
+             _description = "Delete any mpack and mrep files that have been generated for the current project." 
+             defaultHandler = "MonoDevelopAddinPackager.CleanAddinPackageHandler"
+             />
+    </Extension>
+	<Extension path = "/MonoDevelop/Ide/MainMenu/Project">
+		<CommandItem id = "MonoDevelopAddinPackager.Commands.CleanAddinPackaging"/>
+	</Extension>
 </ExtensionModel>
