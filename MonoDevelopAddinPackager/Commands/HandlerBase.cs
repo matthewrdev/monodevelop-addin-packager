@@ -93,8 +93,6 @@ namespace MonoDevelopAddinPackager
 
 		protected bool CanExecuteInContext()
 		{
-			return true;
-
 			var workspace = IdeApp.Workspace;
 
 			if (String.IsNullOrEmpty (workspace.ActiveConfigurationId)) {
