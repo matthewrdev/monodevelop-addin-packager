@@ -65,6 +65,5 @@
   <ItemGroup>
     <Folder Include="Commands\" />
     <Folder Include="Helpers\" />
-    <Folder Include="GUI\" />
   </ItemGroup>
 </Project>

@@ -66,7 +66,7 @@ namespace MonoDevelopAddinPackager
 			}
 
 
-			_dialog = new ProgressDialog (true, true);
+			_dialog = new ProgressDialog (IdeApp.Workbench.RootWindow, true, true);
 			_dialog.Title = CommandName;
 			_dialog.Show ();
 
