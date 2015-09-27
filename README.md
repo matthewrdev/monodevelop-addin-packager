@@ -1,6 +1,6 @@
 # monodevelop-addin-packager
 
-Tooling to assist the development of MonoDevelopment addins.
+Tooling to assist the development of MonoDevelop addins.
 
 Current features:
  - 'Package Addin' to pack a MonoDevelop Addin project into an .mpack.
