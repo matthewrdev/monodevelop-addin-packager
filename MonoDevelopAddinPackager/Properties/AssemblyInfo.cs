@@ -12,7 +12,6 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright ("matthewcrobbins")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
-[assembly: AssemblyDescription("Tooling to assist the development of MonoDevelop addins.\n\nCurrent features:\n\n - 'Package Addin' to pack a MonoDevelop Addin project into an .mpack.\n - 'Create Addin Web Index (.mrep)' to build web index .mrep files for the addin.\n - 'Clean Addin Packages' to delete all generated package files for the active project and configuration.")]
 
 // The assembly version has the format "{Major}.{Minor}.{Build}.{Revision}".
 // The form "{Major}.{Minor}.*" will automatically update the build and revision,
