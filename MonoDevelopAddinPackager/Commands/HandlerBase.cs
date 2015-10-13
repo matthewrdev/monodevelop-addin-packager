@@ -155,6 +155,7 @@ namespace MonoDevelopAddinPackager
 
 		protected override void Update (CommandInfo info)
 		{
+			Console.WriteLine (MDToolHelper.ResolveMDToolPath ());
 			info.Enabled = CanExecuteInContext ();
 		}  
 	}

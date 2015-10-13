@@ -90,16 +90,8 @@ namespace MonoDevelopAddinPackager
 
 		public static bool ExecuteMDToolCommand (string command, Action<string> statusCallback)
 		{
-			string mdtoolPath = "";
 			statusCallback ("Resolving mdtool path...");
-			if (DesktopService.PlatformName == "OSX")
-			{
-				mdtoolPath = ResolveOsxMDToolPath ();
-			}
-			else
-			{
-				mdtoolPath = ResolveWindowsMDToolPath ();
-			}
+			string mdtoolPath = ResolveMDToolPath ();
 
 			if (!File.Exists(mdtoolPath)) {
 				statusCallback ("Failed to resolve mdtool executable.");
@@ -128,6 +120,11 @@ namespace MonoDevelopAddinPackager
 			statusCallback ("Command completely succesfully!");
 
 			return true;
+		}
+
+		public static string ResolveMDToolPath()
+		{
+			return DesktopService.PlatformName == "OSX" ?  ResolveOsxMDToolPath () : ResolveWindowsMDToolPath ();
 		}
 
 		public static string ResolveOsxMDToolPath ()
