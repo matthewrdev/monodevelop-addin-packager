@@ -1,5 +1,6 @@
 ﻿using MonoDevelop.Ide;
 using MonoDevelop.Projects;
+using System.Diagnostics;
 
 namespace MonoDevelopAddinPackager
 {
@@ -29,7 +30,7 @@ namespace MonoDevelopAddinPackager
 				string outputDirectory = "";
 				if (MDToolHelper.PackageAddin (solutionItem, base.CommandStatus, out outputDirectory))
 				{
-					DesktopService.OpenFolder (outputDirectory);
+					Process.Start (outputDirectory);
 				}
 
 				else
