@@ -2,6 +2,7 @@
 using MonoDevelop.Projects;
 using MonoDevelop.Ide;
 using System.IO;
+using System.Diagnostics;
 
 namespace MonoDevelopAddinPackager
 {

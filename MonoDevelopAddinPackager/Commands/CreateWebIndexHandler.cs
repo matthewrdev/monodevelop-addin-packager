@@ -1,6 +1,7 @@
 ﻿using System;
 using MonoDevelop.Ide;
 using MonoDevelop.Projects;
+using System.Diagnostics;
 
 namespace MonoDevelopAddinPackager
 {
@@ -61,7 +62,7 @@ namespace MonoDevelopAddinPackager
 			{
 				if (MDToolHelper.CreateWebIndexForAddin (outputFolder, base.CommandStatus))
 				{
-					DesktopService.OpenFolder (outputFolder);
+					Process.Start (outputFolder);
 				}
 			}
 
