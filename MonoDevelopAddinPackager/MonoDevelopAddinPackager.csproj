@@ -38,6 +38,7 @@
     <Compile Include="Helpers\MDToolHelper.cs" />
     <Compile Include="Commands\HandlerBase.cs" />
     <Compile Include="Commands\CleanAddinPackageHandler.cs" />
+    <Compile Include="ManifestTooltipProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MonoDevelop.Addins.0.2.3\build\net40\MonoDevelop.Addins.targets" Condition="Exists('..\packages\MonoDevelop.Addins.0.2.3\build\net40\MonoDevelop.Addins.targets')" />
