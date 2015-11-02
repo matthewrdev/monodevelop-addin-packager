@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.IO;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace MonoDevelopAddinPackager
 {
@@ -19,6 +20,10 @@ namespace MonoDevelopAddinPackager
 
 		public const string MREP_FILE_EXTENSION = ".mrep";
 		public const string MPACK_FILE_EXTENSION = ".mpack";
+
+		public const string ROOT_MREP_FILE = "root.mrep";
+		public const string MAIN_MREP_FILE = "main.mrep";
+		public const string MREP_INDEX_FILE = "index.html";
 
 		public MDToolHelper ()
 		{
@@ -60,7 +65,6 @@ namespace MonoDevelopAddinPackager
 
 						outputDirectory = outputPath.ParentDirectory;
 
-
 						var command = String.Format (MDTOOL_PACK_COMMAND, outputPath, outputPath.ParentDirectory);
 
 						return ExecuteMDToolCommand (command, statusCallback);
@@ -75,17 +79,64 @@ namespace MonoDevelopAddinPackager
 			}
 			catch (Exception ex)
 			{
-				statusCallback("A critical error occurred while generating the mpack for the project." + ex.ToString ());
+				statusCallback("A critical error occurred while generating the mpack for the project. " + ex.ToString ());
 				statusCallback ("Please file a bug report at https://github.com/matthew-ch-robbins/monodevelop-addin-packager");
 			}
 
 			return false;
 		}
 
-		public static bool CreateWebIndexForAddin(string addinDirectory, Action<string> statusCallback)
+		public static bool CreateWebIndexForAddin(string sourceDirectory, string outputDirectory, Action<string> statusCallback)
 		{
-			string command = String.Format (MDTOOL_MREP_BUILD__COMMAND, addinDirectory);
-			return ExecuteMDToolCommand (command, statusCallback);
+			string commandTargetDirectory = BuildMrepCommandTargetDirectory (sourceDirectory, outputDirectory, statusCallback);
+
+			string command = String.Format (MDTOOL_MREP_BUILD__COMMAND, commandTargetDirectory);
+
+			if (ExecuteMDToolCommand (command, statusCallback)) {
+
+				var di = new DirectoryInfo (commandTargetDirectory);
+
+				var mreps = Directory.GetFiles (commandTargetDirectory, "*" + MREP_FILE_EXTENSION);
+				var mpacks = Directory.GetFiles (commandTargetDirectory, "*" + MPACK_FILE_EXTENSION);
+
+				var files = new List<string> ();
+				files.AddRange (mreps);
+				files.AddRange (mpacks);
+				files.Add (Path.Combine(commandTargetDirectory, MREP_INDEX_FILE));
+					
+				statusCallback ("Moving files from '" + commandTargetDirectory + "' to '" + outputDirectory);
+				foreach (var file in files) {
+					var fi = new FileInfo (file);
+					string newPath = Path.Combine (outputDirectory, fi.Name);
+					statusCallback ("Moving '" + file + "' to '" + newPath + "'");
+					File.Copy (file, newPath);
+				}
+			}
+
+			return false;
+		}
+
+		public static string BuildMrepCommandTargetDirectory(string sourceDirectory, string outputDirectory, Action<string> statusCallback)
+		{
+			string commandTargetDirectory = sourceDirectory;
+			if (sourceDirectory != outputDirectory) {
+				commandTargetDirectory = Path.Combine (sourceDirectory, ".tmp.mrep");
+				statusCallback ("Generating temporary working directory for packager '" + commandTargetDirectory + "'");
+				if (Directory.Exists (commandTargetDirectory)) {
+					Directory.Delete (commandTargetDirectory, true);
+				}
+
+				Directory.CreateDirectory (commandTargetDirectory);
+
+				var mpacks = Directory.GetFiles (sourceDirectory, "*.mpack");
+				foreach (var mpack in mpacks) {
+					var fi = new FileInfo (mpack);
+					string newPath = Path.Combine (commandTargetDirectory, fi.Name);
+					File.Copy (mpack, newPath);
+				}
+			}
+
+			return commandTargetDirectory;
 		}
 
 		public static bool ExecuteMDToolCommand (string command, Action<string> statusCallback)

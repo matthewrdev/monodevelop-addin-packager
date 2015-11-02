@@ -2,6 +2,8 @@
 using MonoDevelop.Ide;
 using MonoDevelop.Projects;
 using System.Diagnostics;
+using MonoDevelop.Core;
+using System.IO;
 
 namespace MonoDevelopAddinPackager
 {
@@ -27,7 +29,7 @@ namespace MonoDevelopAddinPackager
 			}
 		}
 
-		public override bool Execute (MonoDevelop.Projects.SolutionItem solutionItem, out string message)
+		public override bool Execute (SolutionItem solutionItem, out string message)
 		{
 			message = "";
 
@@ -60,9 +62,37 @@ namespace MonoDevelopAddinPackager
 
 			using (var scope = base.TaskScope ("Generate mrep for addin..."))
 			{
-				if (MDToolHelper.CreateWebIndexForAddin (outputFolder, base.CommandStatus))
+				string mrepOutputFolder = outputFolder;
+				if (PropertyService.HasValue (Options.Keys.MREP_OUTPUT_FOLDER_KEY)) {
+					mrepOutputFolder = PropertyService.Get (Options.Keys.MREP_OUTPUT_FOLDER_KEY, Options.Defaults.MREP_OUTPUT_FOLDER_DEFAULT);
+					base.CommandStatus ("Ouput folder is configured to: " + mrepOutputFolder);
+				} else {
+					base.CommandStatus ("No output folder has been configured, using the build output folder");
+				}
+
+				if (MDToolHelper.CreateWebIndexForAddin (outputFolder, mrepOutputFolder, base.CommandStatus))
 				{
-					Process.Start (outputFolder);
+					string mrepPath = Path.Combine (mrepOutputFolder, MDToolHelper.MAIN_MREP_FILE);
+					OpenFileHelper.OpenAndSelect (mrepPath);
+					return true;
+				}
+			}
+
+			using (var scope = base.TaskScope ("Generate mrep for addin..."))
+			{
+				string mrepOutputFolder = outputFolder;
+				if (PropertyService.HasValue (Options.Keys.MREP_OUTPUT_FOLDER_KEY)) {
+					mrepOutputFolder = PropertyService.Get (Options.Keys.MREP_OUTPUT_FOLDER_KEY, Options.Defaults.MREP_OUTPUT_FOLDER_DEFAULT);
+					base.CommandStatus ("Ouput folder is configured to: " + mrepOutputFolder);
+				} else {
+					base.CommandStatus ("No output folder has been configured, using the build output folder");
+				}
+
+				if (MDToolHelper.CreateWebIndexForAddin (outputFolder, mrepOutputFolder, base.CommandStatus))
+				{
+					string mrepPath = Path.Combine (mrepOutputFolder, MDToolHelper.MAIN_MREP_FILE);
+					OpenFileHelper.OpenAndSelect (mrepPath);
+					return true;
 				}
 			}
 

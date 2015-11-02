@@ -7,6 +7,7 @@ using MonoDevelop.Ide.Gui.Dialogs;
 
 namespace MonoDevelopAddinPackager
 {
+
 	public abstract class HandlerBase : CommandHandler
 	{
 		protected class CommandTaskScope : IDisposable
@@ -93,6 +94,7 @@ namespace MonoDevelopAddinPackager
 
 		protected bool CanExecuteInContext()
 		{
+			return true;
 			var workspace = IdeApp.Workspace;
 
 			if (String.IsNullOrEmpty (workspace.ActiveConfigurationId)) {

@@ -28,6 +28,7 @@ namespace MonoDevelopAddinPackager
 			{
 				message = "";
 				string outputDirectory = "";
+				string outputMpack = "";
 				if (MDToolHelper.PackageAddin (solutionItem, base.CommandStatus, out outputDirectory))
 				{
 					Process.Start (outputDirectory);
