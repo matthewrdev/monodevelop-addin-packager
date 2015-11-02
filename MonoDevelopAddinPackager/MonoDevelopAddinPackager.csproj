@@ -52,13 +52,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <AddinReference Include="MonoDevelop.Xamarin.Ide" />
     <AddinReference Include="MonoDevelop.Refactoring" />
-    <AddinReference Include="MonoDevelop.MonoAndroid" />
     <AddinReference Include="MonoDevelop.CSharpBinding" />
     <AddinReference Include="MonoDevelop.GtkCore" />
     <AddinReference Include="MonoDevelop.SourceEditor2" />
-    <AddinReference Include="MonoDevelop.FSharpBinding" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
