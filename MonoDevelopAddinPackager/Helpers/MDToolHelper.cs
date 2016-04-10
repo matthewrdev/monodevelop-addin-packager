@@ -51,7 +51,7 @@ namespace MonoDevelopAddinPackager
 				using (var monitor = IdeApp.Workbench.ProgressMonitors.GetBuildProgressMonitor ())
 				{
 					statusCallback("Building project...");
-					var buildResult = item.Build (monitor, IdeApp.Workspace.ActiveConfiguration);
+					var buildResult = item.Build (monitor, IdeApp.Workspace.ActiveConfiguration).Result;
 					if (buildResult.Failed == false)
 					{
 						statusCallback("Success!");

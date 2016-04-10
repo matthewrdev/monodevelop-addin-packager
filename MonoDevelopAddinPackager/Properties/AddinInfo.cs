@@ -5,7 +5,7 @@ using Mono.Addins.Description;
 [assembly:Addin (
 	"MonoDevelopAddinPackager", 
 	Namespace = "MonoDevelopAddinPackager",
-	Version = "2.5.0"
+	Version = "3.0.0"
 )]
 
 [assembly:AddinName ("MonoDevelop Addin Packager")]
