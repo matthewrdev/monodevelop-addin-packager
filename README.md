@@ -1,4 +1,28 @@
-# monodevelop-addin-packager
+# MonoDevelop Addin Packager
+
+**Support for the Addin Packager has been deprecated as of Xamarin Studio 6**
+
+To generate an mpack for your addins, use the script below:
+
+````
+find . -name "obj" | xargs rm -Rf
+find . -name "bin" | xargs rm -Rf
+
+BUILD_DATE=$(date +"%y-%m-%d-%H-%M")
+
+mkdir ./builds
+mkdir ./builds/mpack
+mkdir ./builds/mpack/$BUILD_DATE
+
+# Build your solution
+xbuild /p:Configuration=Release ./MySolution.sln
+
+# Package the dll using MD tool
+/Applications/Xamarin\ Studio.app/Contents/MacOS/mdtool setup pack ./MySolution/bin/Release/MyAddin.dll -d:./builds/mpack/$BUILD_DATE
+
+# View output
+open ./builds/mpack/$BUILD_DATE
+````
 
 Tooling to assist the development of MonoDevelop addins.
 
@@ -9,7 +33,5 @@ Current features:
 
 Keep up to date with the latest features by following me on Twitter: [@matthewrdev](https://twitter.com/matthewrdev)
 
-Author Notes:
-I rely on this tooling heavily throughout the development of my own addins. The direction of the project is driven by repetive workflows that could be automated and issues I encounter that could be easily fixed by a tool. 
 
 Feedback is welcomed.
